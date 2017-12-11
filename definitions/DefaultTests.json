@@ -1,0 +1,94 @@
+[
+    {
+        "type": "^.*$",
+        "format": "^.*$",
+        "required": "true",
+        "tests": [
+            {
+                "value": "",
+                "valid": false,
+                "expectedCode": "^400$"
+            }
+        ]
+    },
+    {
+        "type": "^string$",
+        "format": "^(?!byte|binary|date|date-time)$",
+        "tests": [
+            {
+                "value": "\"' OR 1=1",
+                "valid": true,
+                "expectedCode": "^(?!500)$"
+            },
+            {
+                "value": "<script>alert('test failed !');</script>",
+                "valid": true,
+                "expectedCode": "^(?!500)$"
+            }
+        ]
+    },
+    {
+        "type": "^integer|number$",
+        "format": "^int32|int64|float|double$",
+        "tests": [
+            {
+                "value": 0,
+                "valid": true,
+                "expectedCode": "^2[0-9]{2}$"
+            },
+            {
+                "value": "a",
+                "valid": false,
+                "expectedCode": "^400$"
+            }
+        ]
+    },
+    {
+        "type": "^integer$",
+        "format": "^int32$",
+        "tests": [
+            {
+                "value": "2147483648",
+                "valid": false,
+                "expectedCode": "^400$"
+            },
+            {
+                "value": "-2147483649",
+                "valid": false,
+                "expectedCode": "^400$"
+            }
+        ]
+    },
+    {
+        "type": "^boolean$",
+        "format": "",
+        "tests": [
+            {
+                "value": "a",
+                "valid": false,
+                "expectedCode": "^400$"
+            },
+            {
+                "value": "45",
+                "valid": false,
+                "expectedCode": "^400$"
+            },
+            {
+                "value": true,
+                "valid": true,
+                "expectedCode": "^200$"
+            }
+        ]
+    },
+    {
+        "type": "^string$",
+        "format": "^date$",
+        "tests": [
+            {
+                "value": "2017-05-24",
+                "valid": true,
+                "expectedCode": "^(?!500)$"
+            }
+        ]
+    }
+]
