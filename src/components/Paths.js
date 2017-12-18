@@ -15,6 +15,7 @@ class Paths extends Component {
                                     key={(i+1)*(j+1)}
                                     onDropped={(props, dropResult) => onDropped(props, dropResult)}
                                     spec={spec.paths[path][method]}
+                                    testValues={{}}
                                     color='black'
                                     disabled
                                     path={path}
@@ -27,6 +28,7 @@ class Paths extends Component {
                                         key={(i+1)*(j+1)}
                                         onDropped={(props, dropResult) => onDropped(props, dropResult)}
                                         spec={spec.paths[path][method]}
+                                        testValues={{}}
                                         color='blue'
                                         path={path}
                                         method={method.toUpperCase()}
@@ -36,6 +38,7 @@ class Paths extends Component {
                                         key={(i+1)*(j+1)}
                                         onDropped={(props, dropResult) => onDropped(props, dropResult)}
                                         spec={spec.paths[path][method]}
+                                        testValues={{}}
                                         color='green'
                                         path={path}
                                         method={method.toUpperCase()}
@@ -45,6 +48,7 @@ class Paths extends Component {
                                         key={(i+1)*(j+1)}
                                         onDropped={(props, dropResult) => onDropped(props, dropResult)}
                                         spec={spec.paths[path][method]}
+                                        testValues={{}}
                                         color='orange'
                                         path={path}
                                         method={method.toUpperCase()}
@@ -54,6 +58,7 @@ class Paths extends Component {
                                         key={(i+1)*(j+1)}
                                         onDropped={(props, dropResult) => onDropped(props, dropResult)}
                                         spec={spec.paths[path][method]}
+                                        testValues={{}}
                                         color='purple'
                                         path={path}
                                         method={method.toUpperCase()}
@@ -63,6 +68,7 @@ class Paths extends Component {
                                         key={(i+1)*(j+1)}
                                         onDropped={(props, dropResult) => onDropped(props, dropResult)}
                                         spec={spec.paths[path][method]}
+                                        testValues={{}}
                                         color='red'
                                         path={path}
                                         method={method.toUpperCase()}
@@ -72,6 +78,7 @@ class Paths extends Component {
                                         key={(i+1)*(j+1)}
                                         onDropped={(props, dropResult) => onDropped(props, dropResult)}
                                         spec={spec.paths[path][method]}
+                                        testValues={{}}
                                         color='back'
                                         path={path}
                                         method={method.toUpperCase()}

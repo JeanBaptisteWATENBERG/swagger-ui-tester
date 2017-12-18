@@ -3,11 +3,47 @@ import { Input, Table, TextArea } from 'semantic-ui-react'
 
 class Parameter extends Component {
 
+  constructor(props) {
+    super(props)
+
+    this.state = {
+      val: undefined
+    }
+  }
+
+  componentDidMount () {
+    const { spec, onChange, value } = this.props
+
+    if (!value) {
+      if (spec.in === 'body') {
+        onChange(this.bodyAsJson(spec.schema.properties))
+      } else {
+        onChange(spec.example || this.getExampleValueForType(spec.type, spec.format))
+      }
+    }
+  }
+  
+
   bodyAsJson(properties) {
-    return '{\n' + Object.keys(properties).map(key =>
-      `\t"${key}": ${
-      (properties[key].example && properties[key].type === 'string' ? '"' + properties[key].example + '"' : properties[key].example) ||
-      this.getExampleValueForTypeWrapped(properties[key].type, properties[key].format)}`).join(',\n') +
+    return '{\n' + Object.keys(properties).map(key => {
+      let computedExample = this.getExampleValueForTypeWrapped(properties[key].type, properties[key].format)
+
+      if (properties[key].type === "object") {
+        let tempBody = this.bodyAsJson(properties[key].properties)
+        computedExample = tempBody.split('\n').map(line => '\t' + line).join('\n')
+      } else if (properties[key].type === "array") {
+        if (properties[key].items.type === "object") {
+          let tempBody = this.bodyAsJson(properties[key].items.properties)
+          computedExample = "[" + tempBody.split('\n').map(line => '\t' + line).join('\n') + "]"
+        } else {
+          computedExample = "[" + this.getExampleValueForTypeWrapped(properties[key].items.type, properties[key].items.format) + "]"
+        }
+      }
+
+      return `\t"${key}": ${
+        (properties[key].example && properties[key].type === 'string' ? '"' + properties[key].example + '"' : properties[key].example) ||
+        computedExample}`
+    }).join(',\n') +
       '\n}'
   }
 
@@ -73,16 +109,15 @@ class Parameter extends Component {
   }
 
   render() {
-    const { spec } = this.props
+    const { spec, onChange, value } = this.props
 
-    console.log(spec)
     return (
       <Table.Row>
         <Table.Cell>{spec.name}</Table.Cell>
         <Table.Cell>{spec.in}</Table.Cell>
         <Table.Cell>
-          {spec.in === 'body' && <TextArea value={this.bodyAsJson(spec.schema.properties)} autoHeight style={{ width: '100%' }} />}
-          {spec.in !== 'body' && <Input type={this.getTypeAsHtml(spec.type, spec.format)} value={spec.example || this.getExampleValueForType(spec.type, spec.format)} fluid />}
+          {spec.in === 'body' && <TextArea onChange={(e) => this.setState({val: e.target.value})} onBlur={(e) => onChange(e.target.value)} value={this.state.val || value || this.bodyAsJson(spec.schema.properties)} autoHeight style={{ width: '100%' }} />}
+          {spec.in !== 'body' && <Input onChange={(e) => this.setState({val: e.target.value})} onBlur={(e) => onChange(e.target.value)} type={this.getTypeAsHtml(spec.type, spec.format)} value={this.state.val || value || spec.example || this.getExampleValueForType(spec.type, spec.format)} fluid />}
         </Table.Cell>
       </Table.Row>
     )

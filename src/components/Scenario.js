@@ -26,7 +26,7 @@ const boxTarget = {
 }))
 class Scenario extends Component {
   render() {
-    const { canDrop, isOver, connectDropTarget, scenario } = this.props
+    const { canDrop, isOver, connectDropTarget, scenario, onAssertionsChange, onExtractionsChange, onTestValueChange } = this.props
     const isActive = canDrop && isOver
     const borderColor = isActive ? 'green' : '#666'
     const borderStyle = isActive ? 'solid' : 'dashed'
@@ -42,6 +42,12 @@ class Scenario extends Component {
             method={path.method}
             summary={path.summary} 
             spec={path.spec}
+            testValues={path.testValues || {}}
+            assertions={path.assertions}
+            extractions={path.extractions}
+            onAssertionsChange={(assertions) => onAssertionsChange(path, assertions)}
+            onExtractionsChange={(extractions) => onExtractionsChange(path, extractions)}
+            onTestValueChange={(paramName, value) => onTestValueChange(path, paramName, value)}
             selectParams/>
         )}
       </div>

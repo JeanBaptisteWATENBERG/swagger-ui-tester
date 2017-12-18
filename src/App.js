@@ -90,7 +90,7 @@ class App extends Component {
     const newSceanris = scenaris.map(scenar => {
       if (scenar.id === scenario.id) {
         if (!scenar.paths) scenar.paths = []
-        scenar.paths.push({color, method, path, summary, disabled, spec})
+        scenar.paths.push({id: scenar.paths.length + 1,color, method, path, summary, disabled, spec})
         currentScenario = scenar
         return scenar
       }
@@ -98,6 +98,67 @@ class App extends Component {
     })
 
     this.setState({scenaris: newSceanris, currentScenario})
+  }
+
+  onAssertionsChange(path, assertions) {
+    const scenaris = this.state.scenaris
+    const newSceanris = scenaris.map(scenar => {
+      if (scenar.id === this.state.currentScenario.id) {
+        const newPaths = scenar.paths.map(p => {
+          if (p.id === path.id) {
+            p.assertions = assertions;
+            return p
+          }
+          return p
+        })
+        scenar.paths = newPaths
+        return scenar
+      }
+      return scenar
+    })
+
+    this.setState({scenaris: newSceanris})
+  }
+
+  onExtractionsChange(path, extractions) {
+    const scenaris = this.state.scenaris
+    const newSceanris = scenaris.map(scenar => {
+      if (scenar.id === this.state.currentScenario.id) {
+        const newPaths = scenar.paths.map(p => {
+          if (p.id === path.id) {
+            p.extractions = extractions;
+            return p
+          }
+          return p
+        })
+        scenar.paths = newPaths
+        return scenar
+      }
+      return scenar
+    })
+
+    this.setState({scenaris: newSceanris})
+  }
+
+  onTestValueChange(path, paramName, value) {
+    const scenaris = this.state.scenaris
+    const newSceanris = scenaris.map(scenar => {
+      if (scenar.id === this.state.currentScenario.id) {
+        const newPaths = scenar.paths.map(p => {
+          if (p.id === path.id) {
+            if (!p.testValues) p.testValues = {}
+            p.testValues[paramName] = value
+            return p
+          }
+          return p
+        })
+        scenar.paths = newPaths
+        return scenar
+      }
+      return scenar
+    })
+
+    this.setState({scenaris: newSceanris})
   }
 
   render() {
@@ -158,7 +219,12 @@ class App extends Component {
                     </Menu.Menu>
                   </Menu>
                   <Divider hidden />
-                  {currentScenario && <Scenario scenario={currentScenario} />}
+                  {currentScenario && 
+                    <Scenario
+                      onAssertionsChange={(path, assertions) => this.onAssertionsChange(path, assertions)}
+                      onExtractionsChange={(path, extractions) => this.onExtractionsChange(path, extractions)}
+                      onTestValueChange={(path, paramName, value) => this.onTestValueChange(path, paramName, value)}
+                      scenario={currentScenario} />}
                 </Container>
               </Grid.Column>
             </Grid.Row>

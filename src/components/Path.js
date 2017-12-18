@@ -2,6 +2,8 @@ import React, { Component } from 'react'
 import { Input, Label, Message, Modal, Table } from 'semantic-ui-react'
 import { DragSource } from 'react-dnd'
 import Parameter from './Parameter'
+import Assertions from './Assertions'
+import Extractions from './Extractions'
 
 export const DRAG_TYPES = { PATH: 'path' };
 
@@ -45,8 +47,12 @@ class Path extends Component {
     this.setState({ modalOpen: false })
   }
 
+  onParameterTestValueChange(paramSpec, value) {
+    this.props.onTestValueChange(paramSpec.name, value)
+  }
+
   render() {
-    const { color, method, path, summary, disabled, spec, isDragging, connectDragSource } = this.props
+    const { color, method, path, summary, disabled, spec, isDragging, connectDragSource, assertions, extractions, onAssertionsChange, onExtractionsChange, testValues } = this.props
     const opacity = isDragging ? 0.4 : 1
     const marginBottom = '10px'
 
@@ -72,48 +78,18 @@ class Path extends Component {
               </Table.Header>
 
               <Table.Body>
-                {spec && spec.parameters && spec.parameters.map((subSpec, i) => <Parameter key={i} spec={subSpec} />)}
+                {spec && spec.parameters && spec.parameters.map((subSpec, i) => 
+                  <Parameter key={i} spec={subSpec} value={testValues[subSpec.name]} onChange={(value) => this.onParameterTestValueChange(subSpec, value)}/>
+                )}
               </Table.Body>
             </Table>
             <h3>Assertions</h3>
-            <Table celled padded>
-              <Table.Header>
-                <Table.Row>
-                  <Table.HeaderCell>On</Table.HeaderCell>
-                  <Table.HeaderCell>Type</Table.HeaderCell>
-                  <Table.HeaderCell>Value</Table.HeaderCell>
-                </Table.Row>
-              </Table.Header>
+            
+            <Assertions assertions={assertions} onChange={(assertions) => onAssertionsChange(assertions)}/>
 
-              <Table.Body>
-                <Table.Row>
-                  <Table.Cell>
-                    <select>
-                      <option>headers</option>
-                      <option>status code</option>
-                      <option>body</option>
-                    </select>
-                  </Table.Cell>
-                  <Table.Cell>
-                    <select>
-                      <option>is</option>
-                      <option>contains</option>
-                      <option>not contains</option>
-                    </select>
-                  </Table.Cell>
-                  <Table.Cell>
-                    <Input fluid />
-                  </Table.Cell>
-                </Table.Row>
-              </Table.Body>
-            </Table>
             <h3>Extractions</h3>
 
-            <select>
-              <option>headers</option>
-              <option>status code</option>
-              <option>body</option>
-            </select>.<Input /> as $<Input />
+            <Extractions extractions={extractions} onChange={(extractions) => onExtractionsChange(extractions)}/>
 
           </Modal.Description>
         </Modal.Content>
