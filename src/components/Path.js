@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Input, Label, Message, Modal, Table } from 'semantic-ui-react'
+import { Label, Message, Modal, Table } from 'semantic-ui-react'
 import { DragSource } from 'react-dnd'
 import Parameter from './Parameter'
 import Assertions from './Assertions'
@@ -56,45 +56,47 @@ class Path extends Component {
     const opacity = isDragging ? 0.4 : 1
     const marginBottom = '10px'
 
-    return connectDragSource(<div style={{ marginBottom }}><Message color={color} style={{ opacity }} onClick={() => this.handleClick()}>
-      <Label color={color} horizontal>{method}</Label>
-      <strong>
-        {disabled && <strike>{path}</strike>}
-        {!disabled && path}
-      </strong>&nbsp;&nbsp;{summary}
-    </Message>
-      <Modal open={this.state.modalOpen} onClose={() => this.handleClose()}>
-        <Modal.Header>Parameters, Assertions And Extractions</Modal.Header>
-        <Modal.Content>
-          <Modal.Description>
-            <h3>Parameters</h3>
-            <Table celled padded>
-              <Table.Header>
-                <Table.Row>
-                  <Table.HeaderCell>Name</Table.HeaderCell>
-                  <Table.HeaderCell>In</Table.HeaderCell>
-                  <Table.HeaderCell>Value</Table.HeaderCell>
-                </Table.Row>
-              </Table.Header>
+    return connectDragSource(
+      <div style={{ marginBottom }}>
+        <Message color={color} style={{ opacity }} onClick={() => this.handleClick()}>
+          <Label color={color} horizontal>{method}</Label>
+          <strong>
+            {disabled && <strike>{path}</strike>}
+            {!disabled && path}
+          </strong>&nbsp;&nbsp;{summary}
+        </Message>
+        <Modal open={this.state.modalOpen} onClose={() => this.handleClose()}>
+          <Modal.Header>Parameters, Assertions And Extractions</Modal.Header>
+          <Modal.Content>
+            <Modal.Description>
+              <h3>Parameters</h3>
+              <Table celled padded>
+                <Table.Header>
+                  <Table.Row>
+                    <Table.HeaderCell>Name</Table.HeaderCell>
+                    <Table.HeaderCell>In</Table.HeaderCell>
+                    <Table.HeaderCell>Value</Table.HeaderCell>
+                  </Table.Row>
+                </Table.Header>
 
-              <Table.Body>
-                {spec && spec.parameters && spec.parameters.map((subSpec, i) => 
-                  <Parameter key={i} spec={subSpec} value={testValues[subSpec.name]} onChange={(value) => this.onParameterTestValueChange(subSpec, value)}/>
-                )}
-              </Table.Body>
-            </Table>
-            <h3>Assertions</h3>
-            
-            <Assertions assertions={assertions} onChange={(assertions) => onAssertionsChange(assertions)}/>
+                <Table.Body>
+                  {spec && spec.parameters && spec.parameters.map((subSpec, i) =>
+                    <Parameter key={i} spec={subSpec} value={testValues[subSpec.name]} onChange={(value) => this.onParameterTestValueChange(subSpec, value)} />
+                  )}
+                </Table.Body>
+              </Table>
+              <h3>Assertions</h3>
 
-            <h3>Extractions</h3>
+              <Assertions assertions={assertions} onChange={(assertions) => onAssertionsChange(assertions)} />
 
-            <Extractions extractions={extractions} onChange={(extractions) => onExtractionsChange(extractions)}/>
+              <h3>Extractions</h3>
 
-          </Modal.Description>
-        </Modal.Content>
-      </Modal>
-    </div>)
+              <Extractions extractions={extractions} onChange={(extractions) => onExtractionsChange(extractions)} />
+
+            </Modal.Description>
+          </Modal.Content>
+        </Modal>
+      </div>)
   }
 }
 

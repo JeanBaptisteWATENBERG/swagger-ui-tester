@@ -1,7 +1,9 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { Button, Container, Divider, Grid, Icon, Input, Menu } from 'semantic-ui-react'
 import Paths from './components/Paths'
 import Scenario from './components/Scenario'
+import Helpers from './components/Helpers'
+import SecurityDefinitions from './components/SecurityDefinitions'
 
 import 'semantic-ui-css/semantic.min.css';
 
@@ -90,7 +92,43 @@ class App extends Component {
     const newSceanris = scenaris.map(scenar => {
       if (scenar.id === scenario.id) {
         if (!scenar.paths) scenar.paths = []
-        scenar.paths.push({id: scenar.paths.length + 1,color, method, path, summary, disabled, spec})
+        scenar.paths.push({type:'PATH',id: scenar.paths.length + 1,color, method, path, summary, disabled, spec})
+        currentScenario = scenar
+        return scenar
+      }
+      return scenar
+    })
+
+    this.setState({scenaris: newSceanris, currentScenario})
+  }
+
+  onSecurityDefinitionDropped(securityDefinitionProps, scenario) {
+    const { spec, name } = securityDefinitionProps
+
+    const scenaris = this.state.scenaris
+    let currentScenario;
+    const newSceanris = scenaris.map(scenar => {
+      if (scenar.id === scenario.id) {
+        if (!scenar.paths) scenar.paths = []
+        scenar.paths.push({type: 'SECURITY_DEFINITION', spec, name, id: scenar.paths.length + 1})
+        currentScenario = scenar
+        return scenar
+      }
+      return scenar
+    })
+
+    this.setState({scenaris: newSceanris, currentScenario})
+  }
+
+  onHelperDropped(helperProps, scenario) {
+    const { name } = helperProps
+
+    const scenaris = this.state.scenaris
+    let currentScenario;
+    const newSceanris = scenaris.map(scenar => {
+      if (scenar.id === scenario.id) {
+        if (!scenar.paths) scenar.paths = []
+        scenar.paths.push({type: 'HELPER', name, id: scenar.paths.length + 1})
         currentScenario = scenar
         return scenar
       }
@@ -179,7 +217,14 @@ class App extends Component {
                     placeholder='Insert swagger spec url here...' />
                   <Divider hidden />
                   {Object.keys(this.state.spec).length > 0 &&
-                    <Paths spec={this.state.spec} onDropped={(props, dropResult) => this.onPathDropped(props, dropResult)}></Paths>
+                    <Fragment>
+                      <Divider horizontal>Security Definitions</Divider>
+                      <SecurityDefinitions spec={this.state.spec} onDropped={(props, dropResult) => this.onSecurityDefinitionDropped(props, dropResult)} />
+                      <Divider horizontal>Helpers</Divider>
+                      <Helpers onDropped={(props, dropResult) => this.onHelperDropped(props, dropResult)} />
+                      <Divider horizontal>Paths</Divider>
+                      <Paths spec={this.state.spec} onDropped={(props, dropResult) => this.onPathDropped(props, dropResult)}></Paths>
+                    </Fragment>
                   }
                   <Divider hidden />
                 </Container>
