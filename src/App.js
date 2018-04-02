@@ -5,8 +5,6 @@ import Scenario from './components/Scenario'
 import Helpers from './components/Helpers'
 import SecurityDefinitions from './components/SecurityDefinitions'
 
-import 'semantic-ui-css/semantic.min.css';
-
 const leftPane = {
   maxHeight: window.innerHeight + 'px',
   overflowY: 'auto'
