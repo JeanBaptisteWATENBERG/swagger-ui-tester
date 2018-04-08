@@ -4,6 +4,7 @@ import Paths from './components/Paths'
 import Scenario from './components/Scenario'
 import Helpers from './components/Helpers'
 import SecurityDefinitions from './components/SecurityDefinitions'
+import converter from 'swagger2openapi'
 
 const leftPane = {
   maxHeight: window.innerHeight + 'px',
@@ -32,10 +33,22 @@ class App extends Component {
     this.setState({ loading: true })
     fetch(specUrl).then(response => response.json()).then((spec) => {
       const preparedSpec = this.prepareSpec(spec, spec)
-      this.setState({ loading: false, specUrl, spec: preparedSpec })
+      const specConverterOption = {
+        patch: true,
+        warnOnly: true,
+      }
+      if (preparedSpec.swagger && preparedSpec.swagger === '2.0') {
+        converter.convertObj(preparedSpec, specConverterOption).then((convertedOption) => {
+          console.log(convertedOption.openapi)
+          this.setState({ loading: false, specUrl, spec: convertedOption.openapi })
+        });
+      } else if (preparedSpec.openapi) {
+        this.setState({ loading: false, specUrl, spec: preparedSpec })
+      }
     }).catch((e) => this.setState({ loading: false, specUrl }))
   }
 
+  // Inline JSON references
   prepareSpec(fullSpec, spec) {
     if(Array.isArray(spec)) {
       return spec.map(key => this.prepareSpec(fullSpec, key))

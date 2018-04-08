@@ -7,11 +7,12 @@ class SecurityDefinitions extends Component {
 
     return (
       <div>
-        {spec && Object.keys(spec.securityDefinitions).map((securityDefinition, i) => 
+        {spec && spec.components && spec.components.securitySchemes && 
+          Object.keys(spec.components.securitySchemes).map((securityDefinition, i) => 
           <SecurityDefinition
             key={i}
             name={securityDefinition}
-            spec={spec.securityDefinitions[securityDefinition]}
+            spec={spec.components.securitySchemes[securityDefinition]}
             onDropped={(props, dropResult) => onDropped(props, dropResult)}
           />)}    
       </div>
