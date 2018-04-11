@@ -83,6 +83,9 @@ class Path extends Component {
                   {spec && spec.parameters && spec.parameters.map((subSpec, i) =>
                     <Parameter key={i} spec={subSpec} value={testValues[subSpec.name]} onChange={(value) => this.onParameterTestValueChange(subSpec, value)} />
                   )}
+                  {spec && spec.requestBody && spec.requestBody.content && spec.requestBody.content['application/json'] && (
+                    <Parameter body={true} spec={spec.requestBody.content['application/json']} value={testValues[spec.requestBody.content['application/json'].name]} onChange={(value) => this.onParameterTestValueChange(spec.requestBody.content['application/json'], value)} />
+                  )}
                 </Table.Body>
               </Table>
               <h3>Assertions</h3>

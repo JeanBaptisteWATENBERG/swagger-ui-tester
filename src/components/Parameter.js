@@ -12,10 +12,10 @@ class Parameter extends Component {
   }
 
   componentDidMount () {
-    const { spec, onChange, value } = this.props
+    const { spec, onChange, value, body } = this.props
 
     if (!value) {
-      if (spec.in === 'body') {
+      if (body) {
         onChange(this.bodyAsJson(spec.schema.properties))
       } else {
         onChange(spec.example || this.getExampleValueForType(spec.type, spec.format))
@@ -109,15 +109,15 @@ class Parameter extends Component {
   }
 
   render() {
-    const { spec, onChange, value } = this.props
+    const { spec, onChange, value, body } = this.props
 
     return (
       <Table.Row>
-        <Table.Cell>{spec.name}</Table.Cell>
-        <Table.Cell>{spec.in}</Table.Cell>
+        <Table.Cell>{spec.name || (body && 'body')}</Table.Cell>
+        <Table.Cell>{spec.in  || (body && 'body')}</Table.Cell>
         <Table.Cell>
-          {spec.in === 'body' && <TextArea onChange={(e) => this.setState({val: e.target.value})} onBlur={(e) => onChange(e.target.value)} value={this.state.val || value || this.bodyAsJson(spec.schema.properties)} autoHeight style={{ width: '100%' }} />}
-          {spec.in !== 'body' && <Input onChange={(e) => this.setState({val: e.target.value})} onBlur={(e) => onChange(e.target.value)} type={this.getTypeAsHtml(spec.type, spec.format)} value={this.state.val || value || spec.example || this.getExampleValueForType(spec.type, spec.format)} fluid />}
+          {body && <TextArea onChange={(e) => this.setState({val: e.target.value})} onBlur={(e) => onChange(e.target.value)} value={this.state.val || value || this.bodyAsJson(spec.schema.properties)} autoHeight style={{ width: '100%' }} />}
+          {!body && <Input onChange={(e) => this.setState({val: e.target.value})} onBlur={(e) => onChange(e.target.value)} type={this.getTypeAsHtml(spec.type, spec.format)} value={this.state.val || value || spec.example || this.getExampleValueForType(spec.type, spec.format)} fluid />}
         </Table.Cell>
       </Table.Row>
     )

@@ -33,16 +33,18 @@ class App extends Component {
   loadSpec(specUrl) {
     this.setState({ loading: true })
     fetch(specUrl).then(response => response.json()).then((spec) => {
-      const preparedSpec = this.prepareSpec(spec, spec)
-      const specConverterOption = {
-        patch: true,
-        warnOnly: true,
-      }
-      if (preparedSpec.swagger && preparedSpec.swagger === '2.0') {
-        converter.convertObj(preparedSpec, specConverterOption).then((convertedOption) => {
-          this.setState({ loading: false, specUrl, spec: convertedOption.openapi, errorWhileFetching: false })
+      if (spec.swagger && spec.swagger === '2.0') {
+        const specConverterOption = {
+          patch: true,
+          warnOnly: true,
+        }
+        converter.convertObj(spec, specConverterOption).then((convertedOption) => {
+          const preparedSpec = this.prepareSpec(convertedOption.openapi, convertedOption.openapi)
+          console.log(preparedSpec)
+          this.setState({ loading: false, specUrl, spec: preparedSpec, errorWhileFetching: false })
         });
-      } else if (preparedSpec.openapi) {
+      } else if (spec.openapi) {
+        const preparedSpec = this.prepareSpec(spec, spec)
         this.setState({ loading: false, specUrl, spec: preparedSpec, errorWhileFetching: false })
       } else {
         this.setState({ loading: false, specUrl, errorWhileFetching: true })
