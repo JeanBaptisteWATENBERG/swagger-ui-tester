@@ -20,6 +20,7 @@ class App extends Component {
       loading: true,
       spec: {},
       scenaris: [],
+      errorWhileFetching: false,
       currentScenario: undefined
     }
   }
@@ -39,13 +40,14 @@ class App extends Component {
       }
       if (preparedSpec.swagger && preparedSpec.swagger === '2.0') {
         converter.convertObj(preparedSpec, specConverterOption).then((convertedOption) => {
-          console.log(convertedOption.openapi)
-          this.setState({ loading: false, specUrl, spec: convertedOption.openapi })
+          this.setState({ loading: false, specUrl, spec: convertedOption.openapi, errorWhileFetching: false })
         });
       } else if (preparedSpec.openapi) {
-        this.setState({ loading: false, specUrl, spec: preparedSpec })
+        this.setState({ loading: false, specUrl, spec: preparedSpec, errorWhileFetching: false })
+      } else {
+        this.setState({ loading: false, specUrl, errorWhileFetching: true })
       }
-    }).catch((e) => this.setState({ loading: false, specUrl }))
+    }).catch((e) => this.setState({ loading: false, specUrl, errorWhileFetching: true }))
   }
 
   // Inline JSON references
@@ -57,7 +59,11 @@ class App extends Component {
       Object.keys(spec).forEach(key => {
         if (key === '$ref') {
           const path = spec[key].replace("#/", "").split("/")
-          spec = fullSpec[path[0]][path[1]]
+          let fullSpecPart = fullSpec[path[0]][path[1]]
+          for(let i = 2; i < path.length; i++) {
+            fullSpecPart = fullSpecPart[path[i]];
+          }
+          spec = fullSpecPart
         } else {
           spec[key] = this.prepareSpec(fullSpec, spec[key])
         }
@@ -223,6 +229,7 @@ class App extends Component {
                   <Input
                     fluid
                     loading={this.state.loading}
+                    error={this.state.errorWhileFetching}
                     value={this.state.specUrl}
                     onChange={(e) => { this.loadSpec(e.target.value) }}
                     placeholder='Insert swagger spec url here...' />
