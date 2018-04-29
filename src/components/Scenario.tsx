@@ -1,34 +1,44 @@
-import React, { Component } from 'react'
+import * as React from 'react';
 import { DropTarget } from 'react-dnd'
 import { Message } from 'semantic-ui-react'
-import Path from './Path';
-import SecurityDefinition from './SecurityDefinition';
 import Helper from './Helper';
+import Path from './Path';
 import { DRAG_TYPES } from './Path';
+import SecurityDefinition from './SecurityDefinition';
+
+// tslint:disable-next-line:no-empty-interface
+interface IScenarioState {
+}
+
+interface IScenarioProps {
+  canDrop?: boolean;
+  isOver?: boolean;
+  connectDropTarget?: any;
+  scenario: any;// TODO replace by spec ! See (use?) https://github.com/JeanBaptisteWATENBERG/rest-test-scenari-executor/tree/master/src/models
+  onAssertionsChange(path: any, assertions: any[]): void;
+  onExtractionsChange(path: any, extractions: any[]): void;
+  onTestValueChange(path: any, paramName: string, value: string): void;
+}
+
 
 const dropArea = {
-  borderWidth: 2,
   borderColor: '#666',
+  borderRadius: 5,
   borderStyle: 'dashed',
+  borderWidth: 2,
   height: (window.innerHeight - 165) + 'px',
   maxHeight: (window.innerHeight - 165) + 'px',
-  overflowY: 'auto',
-  borderRadius: 5
+  // overflowY: 'auto',
 }
 
 const boxTarget = {
-  drop(props) {
+  drop(props: IScenarioProps) {
     return { ...props.scenario }
   },
 }
 
-@DropTarget(DRAG_TYPES.PATH, boxTarget, (connect, monitor) => ({
-  connectDropTarget: connect.dropTarget(),
-  isOver: monitor.isOver(),
-  canDrop: monitor.canDrop(),
-}))
-class Scenario extends Component {
-  render() {
+class Scenario extends React.Component<IScenarioProps, IScenarioState> {
+  public render() {
     const { canDrop, isOver, connectDropTarget, scenario, onAssertionsChange, onExtractionsChange, onTestValueChange } = this.props
     const isActive = canDrop && isOver
     const borderColor = isActive ? 'green' : '#666'
@@ -36,7 +46,7 @@ class Scenario extends Component {
 
     return connectDropTarget(
       <div style={{ ...dropArea, borderStyle, borderColor }}>
-        {scenario && scenario.paths && scenario.paths.map((path, i) => {
+        {scenario && scenario.paths && scenario.paths.map((path: any, i: number) => {
           if (path.type === 'PATH') {
             return <Path
               key={i}
@@ -49,20 +59,24 @@ class Scenario extends Component {
               testValues={path.testValues || {}}
               assertions={path.assertions}
               extractions={path.extractions}
-              onAssertionsChange={(assertions) => onAssertionsChange(path, assertions)}
-              onExtractionsChange={(extractions) => onExtractionsChange(path, extractions)}
-              onTestValueChange={(paramName, value) => onTestValueChange(path, paramName, value)}
+              onAssertionsChange={(assertions: any[]) => onAssertionsChange(path, assertions)}
+              onExtractionsChange={(extractions: any[]) => onExtractionsChange(path, extractions)}
+              onTestValueChange={(paramName: string, value: string) => onTestValueChange(path, paramName, value)}
               selectParams />
           } else if (path.type === 'SECURITY_DEFINITION') {
             return <SecurityDefinition key={i} spec={path.spec} name={path.name} selectParams/>
           } else if (path.type === 'HELPER') {
             return <Helper key={i} name={path.name} selectParams/>
           }
-          return <Message>Operation not supported</Message>
+          return <Message key={i}>Operation not supported</Message>
         })}
       </div>
     )
   }
 }
 
-export default Scenario
+export default DropTarget(DRAG_TYPES.PATH, boxTarget, (connect: any, monitor: any) => ({
+  canDrop: monitor.canDrop(),
+  connectDropTarget: connect.dropTarget(),
+  isOver: monitor.isOver(),
+}))(Scenario);

@@ -1,8 +1,13 @@
-import React, { Component } from 'react'
-import Path from './Path.js'
+import * as React from 'react';
+import Path from './Path'
 
-class Paths extends Component {
-    render() {
+interface IPathsProps {
+    spec: any;
+    onDropped(props: any, dropResult: any): void;
+}
+
+class Paths extends React.Component<IPathsProps> {
+    public render() {
         const { spec, onDropped } = this.props
         
         return (
@@ -13,7 +18,7 @@ class Paths extends Component {
                             if (spec.paths[path][method].deprecated) {
                                 return <Path
                                     key={(i+1)*(j+1)}
-                                    onDropped={(props, dropResult) => onDropped(props, dropResult)}
+                                    onDropped={(props: any, dropResult: any) => onDropped(props, dropResult)}
                                     spec={spec.paths[path][method]}
                                     testValues={{}}
                                     color='black'
@@ -26,7 +31,7 @@ class Paths extends Component {
                                 case "get":
                                     return <Path
                                         key={(i+1)*(j+1)}
-                                        onDropped={(props, dropResult) => onDropped(props, dropResult)}
+                                        onDropped={(props: any, dropResult: any) => onDropped(props, dropResult)}
                                         spec={spec.paths[path][method]}
                                         testValues={{}}
                                         color='blue'
@@ -36,7 +41,7 @@ class Paths extends Component {
                                 case "post":
                                     return <Path
                                         key={(i+1)*(j+1)}
-                                        onDropped={(props, dropResult) => onDropped(props, dropResult)}
+                                        onDropped={(props: any, dropResult: any) => onDropped(props, dropResult)}
                                         spec={spec.paths[path][method]}
                                         testValues={{}}
                                         color='green'
@@ -46,7 +51,7 @@ class Paths extends Component {
                                 case "put":
                                     return <Path
                                         key={(i+1)*(j+1)}
-                                        onDropped={(props, dropResult) => onDropped(props, dropResult)}
+                                        onDropped={(props: any, dropResult: any) => onDropped(props, dropResult)}
                                         spec={spec.paths[path][method]}
                                         testValues={{}}
                                         color='orange'
@@ -56,7 +61,7 @@ class Paths extends Component {
                                 case "patch":
                                     return <Path
                                         key={(i+1)*(j+1)}
-                                        onDropped={(props, dropResult) => onDropped(props, dropResult)}
+                                        onDropped={(props: any, dropResult: any) => onDropped(props, dropResult)}
                                         spec={spec.paths[path][method]}
                                         testValues={{}}
                                         color='purple'
@@ -66,7 +71,7 @@ class Paths extends Component {
                                 case "delete":
                                     return <Path
                                         key={(i+1)*(j+1)}
-                                        onDropped={(props, dropResult) => onDropped(props, dropResult)}
+                                        onDropped={(props: any, dropResult: any) => onDropped(props, dropResult)}
                                         spec={spec.paths[path][method]}
                                         testValues={{}}
                                         color='red'
@@ -76,10 +81,10 @@ class Paths extends Component {
                                 default:
                                     return <Path
                                         key={(i+1)*(j+1)}
-                                        onDropped={(props, dropResult) => onDropped(props, dropResult)}
+                                        onDropped={(props: any, dropResult: any) => onDropped(props, dropResult)}
                                         spec={spec.paths[path][method]}
                                         testValues={{}}
-                                        color='back'
+                                        color='black'
                                         path={path}
                                         method={method.toUpperCase()}
                                         summary={spec.paths[path][method].summary} />

@@ -1,16 +1,28 @@
-import React, { Component } from 'react'
+import * as React from 'react';
+import { ConnectDragSource, DragSource, DragSourceConnector, DragSourceMonitor, DragSourceSpec } from 'react-dnd'
 import { Label, Message, Modal } from 'semantic-ui-react'
-import { DragSource } from 'react-dnd'
 import { DRAG_TYPES } from './Path';
 
-const boxSource = {
-  beginDrag(props) {
+interface IHelperState {
+  modalOpen: boolean;  
+}
+
+interface IHelperProps {
+  selectParams?: any;
+  name: string;
+  connectDragSource?: ConnectDragSource;
+  isDragging?: boolean;
+  onDropped?(props: any, dropResult: any): void;
+}
+
+const boxSource: DragSourceSpec<IHelperProps> = {
+  beginDrag(props: IHelperProps) {
     return {
       ...props,
     }
   },
 
-  endDrag(props, monitor) {
+  endDrag(props: IHelperProps, monitor: DragSourceMonitor) {
     const dropResult = monitor.getDropResult()
 
     if (dropResult && props.onDropped) {
@@ -19,12 +31,8 @@ const boxSource = {
   },
 }
 
-@DragSource(DRAG_TYPES.PATH, boxSource, (connect, monitor) => ({
-  connectDragSource: connect.dragSource(),
-  isDragging: monitor.isDragging(),
-}))
-class Helper extends Component {
-  constructor(props) {
+class Helper extends React.Component<IHelperProps, IHelperState> {
+  constructor(props: IHelperProps) {
     super(props)
 
     this.state = {
@@ -32,21 +40,23 @@ class Helper extends Component {
     }
   }
 
-  handleClick() {
+  public handleClick() {
     if (this.props.selectParams) {
       this.setState({ modalOpen: true })
     }
   }
 
-  handleClose() {
+  public handleClose() {
     this.setState({ modalOpen: false })
   }
 
-  render() {
+  public render() {
     const { name, isDragging, connectDragSource } = this.props
     const opacity = isDragging ? 0.4 : 1
     const marginBottom = '10px'
     const color = 'olive'
+
+    if (!connectDragSource) { return null; }
 
     return connectDragSource(
       <div style={{ marginBottom }}>
@@ -69,4 +79,7 @@ class Helper extends Component {
   }
 }
 
-export default Helper
+export default DragSource(DRAG_TYPES.PATH, boxSource, (connect: DragSourceConnector, monitor: DragSourceMonitor) => ({
+  connectDragSource: connect.dragSource(),
+  isDragging: monitor.isDragging(),
+}))(Helper);

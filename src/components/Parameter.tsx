@@ -1,9 +1,20 @@
-import React, { Component } from 'react'
+import * as React from 'react';
 import { Input, Table, TextArea } from 'semantic-ui-react'
 
-class Parameter extends Component {
+interface IParameterProps {
+  body?: boolean;
+  spec: any;
+  value: string;
+  onChange(newValue: any): void;
+}
 
-  constructor(props) {
+interface IParameterState {
+  val?: string;
+}
+
+class Parameter extends React.Component<IParameterProps, IParameterState> {
+
+  constructor(props: IParameterProps) {
     super(props)
 
     this.state = {
@@ -11,7 +22,7 @@ class Parameter extends Component {
     }
   }
 
-  componentDidMount () {
+  public componentDidMount () {
     const { spec, onChange, value, body } = this.props
 
     if (!value) {
@@ -24,16 +35,16 @@ class Parameter extends Component {
   }
   
 
-  bodyAsJson(properties) {
+  public bodyAsJson(properties: any) {
     return '{\n' + Object.keys(properties).map(key => {
       let computedExample = this.getExampleValueForTypeWrapped(properties[key].type, properties[key].format)
 
       if (properties[key].type === "object") {
-        let tempBody = this.bodyAsJson(properties[key].properties)
+        const tempBody = this.bodyAsJson(properties[key].properties)
         computedExample = tempBody.split('\n').map(line => '\t' + line).join('\n')
       } else if (properties[key].type === "array") {
         if (properties[key].items.type === "object") {
-          let tempBody = this.bodyAsJson(properties[key].items.properties)
+          const tempBody = this.bodyAsJson(properties[key].items.properties)
           computedExample = "[" + tempBody.split('\n').map(line => '\t' + line).join('\n') + "]"
         } else {
           computedExample = "[" + this.getExampleValueForTypeWrapped(properties[key].items.type, properties[key].items.format) + "]"
@@ -47,14 +58,14 @@ class Parameter extends Component {
       '\n}'
   }
 
-  getExampleValueForTypeWrapped(type, format) {
+  public getExampleValueForTypeWrapped(type: string, format: string) {
     if (type === 'string') {
       return '"' + this.getExampleValueForType(type, format) + '"'
     }
     return this.getExampleValueForType(type, format)
   }
 
-  getExampleValueForType(type, format) {
+  public getExampleValueForType(type: string, format: string) {
     switch (type) {
       case 'integer':
         return '0'
@@ -80,7 +91,7 @@ class Parameter extends Component {
     }
   }
 
-  getTypeAsHtml(type, format) {
+  public getTypeAsHtml(type: string, format: string) {
     switch (type) {
       case 'integer':
         return 'number'
@@ -108,7 +119,7 @@ class Parameter extends Component {
     }
   }
 
-  render() {
+  public render() {
     const { spec, onChange, value, body } = this.props
 
     return (
@@ -116,8 +127,8 @@ class Parameter extends Component {
         <Table.Cell>{spec.name || (body && 'body')}</Table.Cell>
         <Table.Cell>{spec.in  || (body && 'body')}</Table.Cell>
         <Table.Cell>
-          {body && <TextArea onChange={(e) => this.setState({val: e.target.value})} onBlur={(e) => onChange(e.target.value)} value={this.state.val || value || this.bodyAsJson(spec.schema.properties)} autoHeight style={{ width: '100%' }} />}
-          {!body && <Input onChange={(e) => this.setState({val: e.target.value})} onBlur={(e) => onChange(e.target.value)} type={this.getTypeAsHtml(spec.type, spec.format)} value={this.state.val || value || spec.example || this.getExampleValueForType(spec.type, spec.format)} fluid />}
+          {body && <TextArea onChange={(e: any) => this.setState({val: e.target.value})} onBlur={(e: any) => onChange(e.target.value)} value={this.state.val || value || this.bodyAsJson(spec.schema.properties)} autoHeight style={{ width: '100%' }} />}
+          {!body && <Input onChange={(e: any) => this.setState({val: e.target.value})} onBlur={(e: any) => onChange(e.target.value)} type={this.getTypeAsHtml(spec.type, spec.format)} value={this.state.val || value || spec.example || this.getExampleValueForType(spec.type, spec.format)} fluid />}
         </Table.Cell>
       </Table.Row>
     )

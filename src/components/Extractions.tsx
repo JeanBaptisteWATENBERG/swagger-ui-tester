@@ -1,28 +1,37 @@
-import React, { Component } from 'react'
+import * as React from 'react';
 import { Button, Icon, Input, Table } from 'semantic-ui-react'
 
-class Extractions extends Component {
+interface IExtractionsState {
+  extractions: any[];
+}
 
-  constructor(props) {
+interface IExtractionsProps {
+  extractions?: any[];
+  onChange(newExtracts: any[]): void;
+}
+
+class Extractions extends React.Component<IExtractionsProps, IExtractionsState> {
+
+  constructor(props: IExtractionsProps) {
     super(props)
     this.state = {
       extractions: props.extractions || []
     }
   }
 
-  componentWillReceiveProps(nextProps) {
+  public componentWillReceiveProps(nextProps: IExtractionsProps) {
     this.setState({ extractions: nextProps.extractions || [] })
   }
 
 
-  addExtraction() {
+  public addExtraction() {
     const extractions = this.state.extractions
     extractions.push({ id: extractions.length + 1, on: 'headers' })
 
     this.setState({ extractions })
   }
 
-  updateExtraction(extraction, parts) {
+  public updateExtraction(extraction: any, parts: any) {
     const extractions = this.state.extractions
     const newExtracts = extractions.map(a => {
       if (a.id === extraction.id) {
@@ -36,7 +45,7 @@ class Extractions extends Component {
     this.setState({extractions: newExtracts})
   }
 
-  removeExtraction(extraction) {
+  public removeExtraction(extraction: any) {
     const extractions = this.state.extractions
     const newExtracts = extractions.map(a => {
       if (a.id === extraction.id) {
@@ -50,10 +59,10 @@ class Extractions extends Component {
     this.setState({extractions: newExtracts})
   }
 
-  render() {
+  public render() {
     const { extractions } = this.state
 
-    const Extract = (props) => <Table.Row>
+    const Extract = (props: any) => <Table.Row>
       <Table.Cell>
         <select value={props.extract.on} onChange={(e) => this.updateExtraction(props.extract, {on: e.target.value})}>
           <option value='headers'>headers</option>
@@ -62,10 +71,10 @@ class Extractions extends Component {
         </select>
       </Table.Cell>
       <Table.Cell>
-        {props.extract.on !== 'status' && <Input fluid value={props.extract.value} onBlur={(e) => this.updateExtraction(props.extract, {value: e.target.value})} />}
+        {props.extract.on !== 'status' && <Input fluid value={props.extract.value} onBlur={(e: any) => this.updateExtraction(props.extract, {value: e.target.value})} />}
       </Table.Cell>
       <Table.Cell>
-        <Input icon='dollar' iconPosition='left' fluid value={props.extract.as} onBlur={(e) => this.updateExtraction(props.extract, {as: e.target.value})} />
+        <Input icon='dollar' iconPosition='left' fluid value={props.extract.as} onBlur={(e: any) => this.updateExtraction(props.extract, {as: e.target.value})} />
       </Table.Cell>
       <Table.Cell>
         <Button icon='trash' onClick={() => this.removeExtraction(props.extract)}/>

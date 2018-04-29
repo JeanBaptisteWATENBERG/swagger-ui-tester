@@ -1,20 +1,43 @@
-import React, { Component } from 'react'
-import { Label, Message, Modal, Table } from 'semantic-ui-react'
-import { DragSource } from 'react-dnd'
-import Parameter from './Parameter'
+import * as React from 'react';
+import { ConnectDragSource, DragSource } from 'react-dnd'
+import { Label, Message, Modal, SemanticCOLORS, Table } from 'semantic-ui-react'
 import Assertions from './Assertions'
 import Extractions from './Extractions'
+import Parameter from './Parameter'
+
+interface IPathState {
+  modalOpen: boolean;
+}
+
+interface IPathProps {
+  selectParams?: any;
+  connectDragSource?: ConnectDragSource;
+  isDragging?: boolean;
+  color?: SemanticCOLORS; 
+  method: string; 
+  path: string;
+  summary?: string;
+  disabled?: boolean;
+  spec: any;
+  assertions?: any[];
+  extractions?: any[];
+  testValues?: any;
+  onAssertionsChange?(newAsserts: any[]): void;
+  onDropped?(props: any, dropResult: any): void;
+  onExtractionsChange?(newExtracts: any[]): void;
+  onTestValueChange?(fieldName: string, newValue: string): void;
+}
 
 export const DRAG_TYPES = { PATH: 'path' };
 
 const boxSource = {
-  beginDrag(props) {
+  beginDrag(props: IPathProps) {
     return {
       ...props,
     }
   },
 
-  endDrag(props, monitor) {
+  endDrag(props: IPathProps, monitor: any) {
     const dropResult = monitor.getDropResult()
 
     if (dropResult && props.onDropped) {
@@ -23,13 +46,9 @@ const boxSource = {
   },
 }
 
-@DragSource(DRAG_TYPES.PATH, boxSource, (connect, monitor) => ({
-  connectDragSource: connect.dragSource(),
-  isDragging: monitor.isDragging(),
-}))
-class Path extends Component {
+class Path extends React.Component<IPathProps, IPathState> {
 
-  constructor(props) {
+  constructor(props: IPathProps) {
     super(props)
 
     this.state = {
@@ -37,31 +56,35 @@ class Path extends Component {
     }
   }
 
-  handleClick() {
+  public handleClick() {
     if (this.props.selectParams) {
       this.setState({ modalOpen: true })
     }
   }
 
-  handleClose() {
+  public handleClose() {
     this.setState({ modalOpen: false })
   }
 
-  onParameterTestValueChange(paramSpec, value) {
-    this.props.onTestValueChange(paramSpec.name, value)
+  public onParameterTestValueChange(paramSpec: any, value: string) {
+    if (this.props.onTestValueChange) {
+      this.props.onTestValueChange(paramSpec.name, value)
+    }
   }
 
-  render() {
+  public render() {
     const { color, method, path, summary, disabled, spec, isDragging, connectDragSource, assertions, extractions, onAssertionsChange, onExtractionsChange, testValues } = this.props
     const opacity = isDragging ? 0.4 : 1
     const marginBottom = '10px'
+
+    if (!connectDragSource) { return null; }
 
     return connectDragSource(
       <div style={{ marginBottom }}>
         <Message color={color} style={{ opacity }} onClick={() => this.handleClick()}>
           <Label color={color} horizontal>{method}</Label>
           <strong>
-            {disabled && <strike>{path}</strike>}
+            {disabled && <span style={{textDecoration: 'line-through'}}>{path}</span>}
             {!disabled && path}
           </strong>&nbsp;&nbsp;{summary}
         </Message>
@@ -80,7 +103,7 @@ class Path extends Component {
                 </Table.Header>
 
                 <Table.Body>
-                  {spec && spec.parameters && spec.parameters.map((subSpec, i) =>
+                  {spec && spec.parameters && spec.parameters.map((subSpec: any, i: number) =>
                     <Parameter key={i} spec={subSpec} value={testValues[subSpec.name]} onChange={(value) => this.onParameterTestValueChange(subSpec, value)} />
                   )}
                   {spec && spec.requestBody && spec.requestBody.content && spec.requestBody.content['application/json'] && (
@@ -90,11 +113,11 @@ class Path extends Component {
               </Table>
               <h3>Assertions</h3>
 
-              <Assertions assertions={assertions} onChange={(assertions) => onAssertionsChange(assertions)} />
+              {onAssertionsChange && <Assertions assertions={assertions} onChange={(updatedAssertions: any[]) => onAssertionsChange(updatedAssertions)} />}
 
               <h3>Extractions</h3>
 
-              <Extractions extractions={extractions} onChange={(extractions) => onExtractionsChange(extractions)} />
+              {onExtractionsChange && <Extractions extractions={extractions} onChange={(updatedExtractions: any[]) => onExtractionsChange(updatedExtractions)} />}
 
             </Modal.Description>
           </Modal.Content>
@@ -103,4 +126,7 @@ class Path extends Component {
   }
 }
 
-export default Path
+export default DragSource(DRAG_TYPES.PATH, boxSource, (connect: any, monitor: any) => ({
+  connectDragSource: connect.dragSource(),
+  isDragging: monitor.isDragging(),
+}))(Path);

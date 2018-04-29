@@ -1,16 +1,29 @@
-import React, { Component } from 'react'
+import * as React from 'react';
+import { ConnectDragSource, DragSource } from 'react-dnd'
 import { Label, Message, Modal } from 'semantic-ui-react'
-import { DragSource } from 'react-dnd'
 import { DRAG_TYPES } from './Path';
 
+interface ISecurityDefinitionState {
+  modalOpen: boolean;
+}
+
+interface ISecurityDefinitionProps {
+  connectDragSource?: ConnectDragSource;
+  isDragging?: boolean;
+  selectParams?: boolean;
+  name: string;
+  spec: any;
+  onDropped?(props: any, dropResult: any): void;
+}
+
 const boxSource = {
-  beginDrag(props) {
+  beginDrag(props: ISecurityDefinitionProps) {
     return {
       ...props,
     }
   },
 
-  endDrag(props, monitor) {
+  endDrag(props: ISecurityDefinitionProps, monitor: any) {
     const dropResult = monitor.getDropResult()
 
     if (dropResult && props.onDropped) {
@@ -19,12 +32,8 @@ const boxSource = {
   },
 }
 
-@DragSource(DRAG_TYPES.PATH, boxSource, (connect, monitor) => ({
-  connectDragSource: connect.dragSource(),
-  isDragging: monitor.isDragging(),
-}))
-class SecurityDefinition extends Component {
-  constructor(props) {
+class SecurityDefinition extends React.Component<ISecurityDefinitionProps, ISecurityDefinitionState> {
+  constructor(props: ISecurityDefinitionProps) {
     super(props)
 
     this.state = {
@@ -32,21 +41,23 @@ class SecurityDefinition extends Component {
     }
   }
 
-  handleClick() {
+  public handleClick() {
     if (this.props.selectParams) {
       this.setState({ modalOpen: true })
     }
   }
 
-  handleClose() {
+  public handleClose() {
     this.setState({ modalOpen: false })
   }
 
-  render() {
+  public render() {
     const { name, spec, isDragging, connectDragSource } = this.props
     const opacity = isDragging ? 0.4 : 1
     const marginBottom = '10px'
     const color = 'brown'
+
+    if (!connectDragSource) { return null; }
 
     return connectDragSource(
       <div style={{ marginBottom }}>
@@ -69,4 +80,7 @@ class SecurityDefinition extends Component {
   }
 }
 
-export default SecurityDefinition
+export default DragSource(DRAG_TYPES.PATH, boxSource, (connect: any, monitor: any) => ({
+  connectDragSource: connect.dragSource(),
+  isDragging: monitor.isDragging(),
+}))(SecurityDefinition);

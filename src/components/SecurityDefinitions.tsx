@@ -1,8 +1,13 @@
-import React, { Component } from 'react'
-import SecurityDefinition from './SecurityDefinition.js'
+import * as React from 'react';
+import SecurityDefinition from './SecurityDefinition'
 
-class SecurityDefinitions extends Component {
-  render () {
+interface ISecurityDefinitionsProps {
+  spec: any;
+  onDropped(props: any, dropResult: any): void;
+}
+
+class SecurityDefinitions extends React.Component<ISecurityDefinitionsProps> {
+  public render () {
     const { spec, onDropped } = this.props
 
     return (
@@ -13,7 +18,7 @@ class SecurityDefinitions extends Component {
             key={i}
             name={securityDefinition}
             spec={spec.components.securitySchemes[securityDefinition]}
-            onDropped={(props, dropResult) => onDropped(props, dropResult)}
+            onDropped={(props: any, dropResult: any) => onDropped(props, dropResult)}
           />)}    
       </div>
     )

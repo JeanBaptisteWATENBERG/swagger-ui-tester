@@ -1,36 +1,49 @@
-import React, { Component, Fragment } from 'react';
+import * as React from 'react';
 import { Button, Container, Divider, Grid, Icon, Input, Menu } from 'semantic-ui-react'
+import converter from 'swagger2openapi'
+import Helpers from './components/Helpers'
 import Paths from './components/Paths'
 import Scenario from './components/Scenario'
-import Helpers from './components/Helpers'
 import SecurityDefinitions from './components/SecurityDefinitions'
-import converter from 'swagger2openapi'
 
 const leftPane = {
   maxHeight: window.innerHeight + 'px',
   overflowY: 'auto'
 }
 
-class App extends Component {
-  constructor(props) {
+interface IAppState {
+  specUrl: string;
+  loading: boolean;
+  spec: any;
+  scenaris: any[];
+  errorWhileFetching: boolean;
+  currentScenario: any;
+}
+
+// tslint:disable-next-line:no-empty-interface
+interface IAppProps {
+}
+
+class App extends React.Component<IAppProps, IAppState> {
+  constructor(props: IAppProps) {
     super(props)
 
     this.state = {
-      specUrl: 'http://petstore.swagger.io/v2/swagger.json',
-      loading: true,
-      spec: {},
-      scenaris: [],
+      currentScenario: undefined,
       errorWhileFetching: false,
-      currentScenario: undefined
+      loading: true,
+      scenaris: [],
+      spec: {},
+      specUrl: 'http://petstore.swagger.io/v2/swagger.json',
     }
   }
 
-  componentDidMount () {
+  public componentDidMount() {
     this.loadSpec(this.state.specUrl)
   }
   
 
-  loadSpec(specUrl) {
+  public loadSpec(specUrl: string) {
     this.setState({ loading: true })
     fetch(specUrl).then(response => response.json()).then((spec) => {
       if (spec.swagger && spec.swagger === '2.0') {
@@ -38,9 +51,8 @@ class App extends Component {
           patch: true,
           warnOnly: true,
         }
-        converter.convertObj(spec, specConverterOption).then((convertedOption) => {
+        converter.convertObj(spec, specConverterOption).then((convertedOption: any) => {
           const preparedSpec = this.prepareSpec(convertedOption.openapi, convertedOption.openapi)
-          console.log(preparedSpec)
           this.setState({ loading: false, specUrl, spec: preparedSpec, errorWhileFetching: false })
         });
       } else if (spec.openapi) {
@@ -53,7 +65,7 @@ class App extends Component {
   }
 
   // Inline JSON references
-  prepareSpec(fullSpec, spec) {
+  public prepareSpec(fullSpec: any, spec: any): any {
     if(Array.isArray(spec)) {
       return spec.map(key => this.prepareSpec(fullSpec, key))
     }
@@ -74,13 +86,13 @@ class App extends Component {
     return spec
   }
 
-  addScenario() {
+  public addScenario() {
     const scenaris = this.state.scenaris;
     const id = scenaris.length + 1;
     const newScenario = {
-      specUrl: this.state.specUrl,
+      id,
       name: 'Scenario #' + id,
-      id
+      specUrl: this.state.specUrl,
     };
 
     scenaris.push(newScenario);
@@ -88,7 +100,7 @@ class App extends Component {
     this.setCurrentScenarioTo(newScenario);
   }
 
-  removeScenario(scenario) {
+  public removeScenario(scenario: any) {
     const scenaris = this.state.scenaris
     const newSceanris = scenaris.map(scenar => {
       if (scenar.id === scenario.id) {
@@ -99,18 +111,18 @@ class App extends Component {
     this.setState({ scenaris: newSceanris })
   }
 
-  setCurrentScenarioTo(scenario) {
+  public setCurrentScenarioTo(scenario: any) {
     this.setState({ currentScenario: scenario });
   }
 
-  onPathDropped(pathProps, scenario) {
+  public onPathDropped(pathProps: any, scenario: any) {
     const { color, method, path, summary, disabled, spec } = pathProps;
 
     const scenaris = this.state.scenaris
     let currentScenario;
     const newSceanris = scenaris.map(scenar => {
       if (scenar.id === scenario.id) {
-        if (!scenar.paths) scenar.paths = []
+        if (!scenar.paths) { scenar.paths = [] }
         scenar.paths.push({type:'PATH',id: scenar.paths.length + 1,color, method, path, summary, disabled, spec})
         currentScenario = scenar
         return scenar
@@ -121,14 +133,14 @@ class App extends Component {
     this.setState({scenaris: newSceanris, currentScenario})
   }
 
-  onSecurityDefinitionDropped(securityDefinitionProps, scenario) {
+  public onSecurityDefinitionDropped(securityDefinitionProps: any, scenario: any) {
     const { spec, name } = securityDefinitionProps
 
     const scenaris = this.state.scenaris
     let currentScenario;
     const newSceanris = scenaris.map(scenar => {
       if (scenar.id === scenario.id) {
-        if (!scenar.paths) scenar.paths = []
+        if (!scenar.paths) { scenar.paths = [] }
         scenar.paths.push({type: 'SECURITY_DEFINITION', spec, name, id: scenar.paths.length + 1})
         currentScenario = scenar
         return scenar
@@ -139,14 +151,14 @@ class App extends Component {
     this.setState({scenaris: newSceanris, currentScenario})
   }
 
-  onHelperDropped(helperProps, scenario) {
+  public onHelperDropped(helperProps: any, scenario: any) {
     const { name } = helperProps
 
     const scenaris = this.state.scenaris
     let currentScenario;
     const newSceanris = scenaris.map(scenar => {
       if (scenar.id === scenario.id) {
-        if (!scenar.paths) scenar.paths = []
+        if (!scenar.paths) { scenar.paths = [] }
         scenar.paths.push({type: 'HELPER', name, id: scenar.paths.length + 1})
         currentScenario = scenar
         return scenar
@@ -157,11 +169,11 @@ class App extends Component {
     this.setState({scenaris: newSceanris, currentScenario})
   }
 
-  onAssertionsChange(path, assertions) {
+  public onAssertionsChange(path: any, assertions: any) {
     const scenaris = this.state.scenaris
     const newSceanris = scenaris.map(scenar => {
       if (scenar.id === this.state.currentScenario.id) {
-        const newPaths = scenar.paths.map(p => {
+        const newPaths = scenar.paths.map((p: any) => {
           if (p.id === path.id) {
             p.assertions = assertions;
             return p
@@ -177,11 +189,11 @@ class App extends Component {
     this.setState({scenaris: newSceanris})
   }
 
-  onExtractionsChange(path, extractions) {
+  public onExtractionsChange(path: any, extractions: any) {
     const scenaris = this.state.scenaris
     const newSceanris = scenaris.map(scenar => {
       if (scenar.id === this.state.currentScenario.id) {
-        const newPaths = scenar.paths.map(p => {
+        const newPaths = scenar.paths.map((p: any) => {
           if (p.id === path.id) {
             p.extractions = extractions;
             return p
@@ -197,13 +209,13 @@ class App extends Component {
     this.setState({scenaris: newSceanris})
   }
 
-  onTestValueChange(path, paramName, value) {
+  public onTestValueChange(path: any, paramName: string, value: string) {
     const scenaris = this.state.scenaris
     const newSceanris = scenaris.map(scenar => {
       if (scenar.id === this.state.currentScenario.id) {
-        const newPaths = scenar.paths.map(p => {
+        const newPaths = scenar.paths.map((p: any) => {
           if (p.id === path.id) {
-            if (!p.testValues) p.testValues = {}
+            if (!p.testValues) { p.testValues = {} }
             p.testValues[paramName] = value
             return p
           }
@@ -218,33 +230,33 @@ class App extends Component {
     this.setState({scenaris: newSceanris})
   }
 
-  render() {
+  public render() {
     const { scenaris, currentScenario } = this.state
 
     return (
         <Container>
-          <Grid divided>
+          <Grid divided={true}>
             <Grid.Row style={{ paddingTop: 0, paddingBottom: 0 }}>
               <Grid.Column width={5}>
                 <Container style={leftPane}>
-                  <Divider hidden />
+                  <Divider hidden={true} />
                   <Input
-                    fluid
+                    fluid={true}
                     loading={this.state.loading}
                     error={this.state.errorWhileFetching}
                     value={this.state.specUrl}
-                    onChange={(e) => { this.loadSpec(e.target.value) }}
+                    onChange={(e: any) => { this.loadSpec(e.target.value) }}
                     placeholder='Insert swagger spec url here...' />
                   <Divider hidden />
                   {Object.keys(this.state.spec).length > 0 &&
-                    <Fragment>
+                    <React.Fragment>
                       <Divider horizontal>Security Definitions</Divider>
                       <SecurityDefinitions spec={this.state.spec} onDropped={(props, dropResult) => this.onSecurityDefinitionDropped(props, dropResult)} />
                       <Divider horizontal>Helpers</Divider>
                       <Helpers onDropped={(props, dropResult) => this.onHelperDropped(props, dropResult)} />
                       <Divider horizontal>Paths</Divider>
-                      <Paths spec={this.state.spec} onDropped={(props, dropResult) => this.onPathDropped(props, dropResult)}></Paths>
-                    </Fragment>
+                      <Paths spec={this.state.spec} onDropped={(props, dropResult) => this.onPathDropped(props, dropResult)} />
+                    </React.Fragment>
                   }
                   <Divider hidden />
                 </Container>
@@ -259,8 +271,8 @@ class App extends Component {
                       </Grid.Column>
                       <Grid.Column width={5}>
                         <Button.Group floated='right'>
-                          <Button basic color='green' icon='play'></Button>
-                          <Button basic color='green' icon='forward'></Button>
+                          <Button basic color='green' icon='play'/>
+                          <Button basic color='green' icon='forward'/>
                         </Button.Group>
                       </Grid.Column>
                     </Grid.Row>
@@ -286,9 +298,9 @@ class App extends Component {
                   <Divider hidden />
                   {currentScenario && 
                     <Scenario
-                      onAssertionsChange={(path, assertions) => this.onAssertionsChange(path, assertions)}
-                      onExtractionsChange={(path, extractions) => this.onExtractionsChange(path, extractions)}
-                      onTestValueChange={(path, paramName, value) => this.onTestValueChange(path, paramName, value)}
+                      onAssertionsChange={(path: any, assertions: any[]) => this.onAssertionsChange(path, assertions)}
+                      onExtractionsChange={(path: any, extractions: any[]) => this.onExtractionsChange(path, extractions)}
+                      onTestValueChange={(path: any, paramName: string, value: string) => this.onTestValueChange(path, paramName, value)}
                       scenario={currentScenario} />}
                 </Container>
               </Grid.Column>
